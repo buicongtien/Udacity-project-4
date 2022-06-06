@@ -21,7 +21,7 @@ from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 
 # Logging
 logger = logging.getLogger(__name__)
-handler = AzureLogHandler(connection_string='InstrumentationKey=2e5addca-7ce2-4d82-8d35-03b0381c12ab')
+handler = AzureLogHandler(connection_string='InstrumentationKey=100732d3-c62a-4c5f-9e3e-c56ea2c4f929')
 handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
 logger.addHandler(handler)
 
@@ -30,13 +30,13 @@ stats = stats_module.stats
 view_manager = stats.view_manager
 exporter = metrics_exporter.new_metrics_exporter(
 enable_standard_metrics=True,
-connection_string='InstrumentationKey=2e5addca-7ce2-4d82-8d35-03b0381c12ab')
+connection_string='InstrumentationKey=100732d3-c62a-4c5f-9e3e-c56ea2c4f929')
 view_manager.register_exporter(exporter)
 
 # Tracing
 tracer = Tracer(
  exporter=AzureExporter(
-     connection_string='InstrumentationKey=2e5addca-7ce2-4d82-8d35-03b0381c12ab'),
+     connection_string='InstrumentationKey=100732d3-c62a-4c5f-9e3e-c56ea2c4f929'),
  sampler=ProbabilitySampler(1.0),
 )
 app = Flask(__name__)
@@ -44,7 +44,7 @@ app = Flask(__name__)
 # Requests
 middleware = FlaskMiddleware(
  app,
- exporter=AzureExporter(connection_string="InstrumentationKey=2e5addca-7ce2-4d82-8d35-03b0381c12ab"),
+ exporter=AzureExporter(connection_string="InstrumentationKey=100732d3-c62a-4c5f-9e3e-c56ea2c4f929"),
  sampler=ProbabilitySampler(rate=1.0)
 )
 
@@ -127,6 +127,7 @@ def index():
 
 if __name__ == "__main__":
     # TODO: Use the statement below when running locally
-    app.run() 
+    #app.run() 
+
     # TODO: Use the statement below before deployment to VMSS
-    # app.run(host='0.0.0.0', threaded=True, debug=True) # remote
+    app.run(host='0.0.0.0', threaded=True, debug=True) # remote
