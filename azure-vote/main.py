@@ -12,34 +12,36 @@ from datetime import datetime
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from opencensus.ext.azure.log_exporter import AzureEventHandler
 from opencensus.ext.azure import metrics_exporter
+from opencensus.stats import aggregation as aggregation_module
+from opencensus.stats import measure as measure_module
 from opencensus.stats import stats as stats_module
+from opencensus.stats import view as view_module
+from opencensus.tags import tag_map as tag_map_module
 from opencensus.ext.azure.trace_exporter import AzureExporter
 from opencensus.trace.samplers import ProbabilitySampler
 from opencensus.trace.tracer import Tracer
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
+
 # For metrics
+app = Flask(__name__)
 
 # Logging
 logger = logging.getLogger(__name__)
-handler = AzureLogHandler(connection_string='InstrumentationKey=100732d3-c62a-4c5f-9e3e-c56ea2c4f929')
-handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
-logger.addHandler(handler)
+logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=100732d3-c62a-4c5f-9e3e-c56ea2c4f929'))
+logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey='))
 
 # Metrics
-stats = stats_module.stats
-view_manager = stats.view_manager
 exporter = metrics_exporter.new_metrics_exporter(
-enable_standard_metrics=True,
-connection_string='InstrumentationKey=100732d3-c62a-4c5f-9e3e-c56ea2c4f929')
-view_manager.register_exporter(exporter)
+    enable_standard_metrics=True,
+    connection_string='InstrumentationKey=a830027f-3b39-4371-8877-8ee0c3050e58'
+)
 
 # Tracing
 tracer = Tracer(
- exporter=AzureExporter(
-     connection_string='InstrumentationKey=100732d3-c62a-4c5f-9e3e-c56ea2c4f929'),
- sampler=ProbabilitySampler(1.0),
+    exporter = AzureExporter(
+        connection_string = 'InstrumentationKey=a830027f-3b39-4371-8877-8ee0c3050e58'),
+    sampler = ProbabilitySampler(1.0),
 )
-app = Flask(__name__)
 
 # Requests
 middleware = FlaskMiddleware(
@@ -104,11 +106,13 @@ def index():
             properties = {'custom_dimensions': {'Cats Vote': vote1}}
             # TODO: use logger object to log cat vote
             logger.info('Cats Vote', extra=properties)
+            logger.warning('Cats Vote', extra=properties)
 
             vote2 = r.get(button2).decode('utf-8')
             properties = {'custom_dimensions': {'Dogs Vote': vote2}}
             # TODO: use logger object to log dog vote
-            logger.info('Dogs Vote', extra=properties)
+            logger.info('Cats Vote', extra=properties)
+            logger.warning('Dogs Vote', extra=properties)
 
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
